@@ -1,0 +1,7 @@
+datasets1
+Classification
+.vscode
+
+# Dataset (too large)
+dataset/raw/
+dataset/processed/
