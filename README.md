@@ -8,24 +8,40 @@ Branch ini berisi proses pengumpulan, preprocessing, dan augmentasi dataset untu
 
 | Info | Detail |
 |------|--------|
-| **Nama Dataset** | *(update setelah download)* |
+| **Nama Dataset** | ACNE Severity Classification |
 | **Sumber** | [Kaggle](https://www.kaggle.com) |
-| **Link** | *(update setelah download)* |
-| **Lisensi** | *(update setelah download)* |
-| **Jumlah Gambar** | *(update setelah download)* |
+| **Link** | https://www.kaggle.com/datasets/lexuanhieu131297/acne-severity-classification/data?select=Classification |
+| **Jumlah Gambar** | 1457 gambar (JPEGImages) |
+| **Format Label** | File `.txt` per split (NNEW_trainval_*.txt, NNEW_test_*.txt) |
 
 ---
 
 ## 🏷 Kategori Kelas
 
-| Kelas | Label | Deskripsi |
-|-------|-------|-----------|
-| Normal | `normal` | Kulit bersih tanpa jerawat signifikan |
-| Jerawat Ringan | `acne_mild` | Komedo dan jerawat kecil, jumlah sedikit |
-| Jerawat Sedang | `acne_moderate` | Jerawat lebih banyak, mulai ada peradangan |
-| Jerawat Berat | `acne_severe` | Jerawat meradang parah, merata di wajah |
+Dataset menggunakan skala IGA (Investigator's Global Assessment) dengan label 0–3, dipetakan ke 4 kelas:
 
-Pembagian dataset: **70% Train / 15% Validation / 15% Test**
+| Label Asli | Kelas | Deskripsi |
+|-----------|-------|-----------|
+| `0` | `Normal` | Kulit bersih tanpa jerawat signifikan |
+| `1` | `Mild_Acne` | Komedo dan jerawat kecil, jumlah sedikit |
+| `2` | `Moderate_Acne` | Jerawat lebih banyak, mulai ada peradangan |
+| `3` | `Severe_Acne` | Jerawat meradang parah, merata di wajah |
+
+---
+
+## 📊 Distribusi Dataset
+
+Pembagian dataset: **85% Train+Val / 15% Test** (test set sudah dipisah oleh pembuat dataset)
+
+| Kelas | Train | Val | Test |
+|-------|-------|-----|------|
+| Normal | 429 | 84 | 513 |
+| Mild_Acne | 551 | 82 | 633 |
+| Moderate_Acne | 148 | 34 | 180 |
+| Severe_Acne | 111 | 18 | 129 |
+| **Total** | **1239** | **218** | **1455** |
+
+> Catatan: Split train/val dilakukan 85/15 dari data trainval secara otomatis oleh script.
 
 ---
 
@@ -33,39 +49,63 @@ Pembagian dataset: **70% Train / 15% Validation / 15% Test**
 
 Langkah preprocessing yang diterapkan pada setiap gambar:
 
-1. **Resize** — Semua gambar diubah ke ukuran `224 × 224` px
-2. **Normalisasi** — Nilai pixel dibagi 255 menjadi rentang `[0, 1]`
-3. **Konversi warna** — Pastikan semua gambar dalam format RGB
-4. **Filter gambar rusak** — Hapus file yang tidak valid atau corrupt
+1. **Baca label** — Label dibaca dari file `.txt` (format: `nama_file.jpg label`)
+2. **Mapping label** — Label IGA 0–3 dipetakan ke 4 kelas (Normal, Mild, Moderate, Severe)
+3. **De-duplikasi** — File yang muncul di lebih dari satu txt hanya disalin sekali
+4. **Split otomatis** — Data trainval diacak lalu dibagi 85% train / 15% val
+5. **Copy ke folder kelas** — Gambar disalin ke `dataset/processed/{split}/{kelas}/`
+6. **Resize** — Semua gambar diubah ke ukuran `224 × 224` px saat loading generator
+7. **Normalisasi** — Nilai pixel dibagi 255 menjadi rentang `[0, 1]`
 
 ```python
-import cv2
-import numpy as np
+# Mapping label IGA → 4 kelas
+LABEL_MAP = {
+    0: "Normal",
+    1: "Mild_Acne",
+    2: "Moderate_Acne",
+    3: "Severe_Acne",
+}
 
-def preprocess_image(img_path, target_size=(224, 224)):
-    img = cv2.imread(img_path)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, target_size)
-    img = img / 255.0
-    return img
+def parse_txt(txt_path):
+    entries = []
+    with open(txt_path, "r") as f:
+        for line in f:
+            parts = line.strip().split()
+            if len(parts) < 2:
+                continue
+            filename = parts[0]
+            label    = int(parts[1])
+            cls      = LABEL_MAP[label]
+            entries.append((filename, cls))
+    return entries
 ```
 
 ---
 
 ## 🔀 Pembagian Dataset
 
+File `.txt` dari dataset dibagi menjadi dua kelompok:
+- `NNEW_trainval_*.txt` → digabung, de-duplikasi, lalu split 85% train / 15% val
+- `NNEW_test_*.txt` → langsung dipakai sebagai test set
+
 ```python
-from sklearn.model_selection import train_test_split
+# Baca semua trainval otomatis
+for txt in sorted(glob.glob("Classification/NNEW_trainval_*.txt")):
+    trainval_entries += parse_txt(txt)
 
-# Split train / temp
-X_train, X_temp, y_train, y_temp = train_test_split(
-    X, y, test_size=0.30, random_state=42, stratify=y
-)
+# De-duplikasi
+seen = set()
+unique_trainval = []
+for fname, cls in trainval_entries:
+    if fname not in seen:
+        seen.add(fname)
+        unique_trainval.append((fname, cls))
 
-# Split val / test dari temp
-X_val, X_test, y_val, y_test = train_test_split(
-    X_temp, y_temp, test_size=0.50, random_state=42, stratify=y_temp
-)
+# Split train/val (85/15)
+rng = np.random.default_rng(RANDOM_SEED)
+indices = rng.permutation(len(unique_trainval))
+val_count = int(len(unique_trainval) * val_ratio)  # 15%
+val_idx   = set(indices[:val_count])
 ```
 
 ---
@@ -76,33 +116,34 @@ Augmentasi diterapkan **hanya pada data train** untuk memperbanyak variasi data 
 
 | Teknik | Parameter |
 |--------|-----------|
-| Horizontal Flip | `p=0.5` |
-| Rotasi | `±15°` |
-| Zoom | `±10%` |
-| Brightness | `±20%` |
-| Shift (H/W) | `±10%` |
+| Horizontal Flip | `True` |
+| Rotasi | `±20°` |
+| Zoom | `±15%` |
+| Brightness | `[0.8, 1.2]` |
+| Width Shift | `±10%` |
+| Height Shift | `±10%` |
+| Shear | `±10%` |
 
 ```python
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 train_datagen = ImageDataGenerator(
-    rescale=1./255,
-    horizontal_flip=True,
-    rotation_range=15,
-    zoom_range=0.1,
+    rescale=1.0 / 255,
+    rotation_range=20,
     width_shift_range=0.1,
     height_shift_range=0.1,
-    brightness_range=[0.8, 1.2]
+    horizontal_flip=True,
+    zoom_range=0.15,
+    brightness_range=[0.8, 1.2],
+    shear_range=0.1,
 )
 
-val_test_datagen = ImageDataGenerator(rescale=1./255)
+# Val & test hanya rescale, tanpa augmentasi
+val_test_datagen = ImageDataGenerator(rescale=1.0 / 255)
 ```
 
 ---
 
 ## 📦 Dependencies
-tensorflow>=2.10.0
-opencv-python
+tensorflow>=2.15.0
 numpy
 scikit-learn
 matplotlib
@@ -118,20 +159,41 @@ pip install -r requirements.txt
 
 ---
 
-## ✅ Progress Checklist
+## 🚀 Cara Menjalankan
 
-- [ ] Dataset ditemukan dan didownload dari Kaggle
-- [ ] Kategori kelas ditentukan (normal, mild, moderate, severe)
-- [ ] Preprocessing selesai (resize, normalisasi, filter rusak)
-- [ ] Dataset dibagi train/val/test (70/15/15)
-- [ ] Augmentasi diterapkan pada data train
-- [ ] Jumlah data per kelas didokumentasikan
+```bash
+cd skincare-analyzer
+
+python model/preprocess.py
+```
+
+Output yang diharapkan:
+✅ Dataset berhasil disusun!
+
+Kelas                   Train      Val     Test
+Normal                    429       84      513
+Mild_Acne                 551       82      633
+Moderate_Acne             148       34      180
+Severe_Acne               111       18      129
 
 ---
 
-> **Catatan:** Folder `raw/` dan `processed/` tidak di-push ke GitHub karena ukuran file besar.
-> Tambahkan ke `.gitignore`:
+## ✅ Progress Checklist
+
+- [x] Dataset ditemukan dan didownload dari Kaggle
+- [x] Kategori kelas ditentukan (Normal, Mild, Moderate, Severe)
+- [x] Label dibaca dari file `.txt` dan dipetakan ke 4 kelas
+- [x] De-duplikasi data dari multiple file txt
+- [x] Dataset dibagi train/val/test secara otomatis
+- [x] Augmentasi diterapkan pada data train
+- [x] Jumlah data per kelas terdokumentasi
+
+---
+
+> **Catatan:** Folder `Classification/` dan `dataset/processed/` tidak di-push ke GitHub karena ukuran file besar.
+> Sudah ditambahkan ke `.gitignore`:
 > ```
 > dataset/raw/
 > dataset/processed/
+> Classification/
 > ```
