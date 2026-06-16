@@ -94,6 +94,5 @@ def predict_folder(folder_path, output_dir="hasil_deteksi"):
 
 # 4. BLOK EKSEKUSI
 if __name__ == "__main__":
-    # Sesuaikan dengan lokasi foldermu
     target_folder = "dataset/processed/test/Moderate_Acne"
     predict_folder(target_folder, output_dir="hasil_deteksi_moderate")

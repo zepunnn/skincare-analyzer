@@ -5,30 +5,30 @@ from keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
-# 1. Muat Generator Data (Asumsi kode preprocess.py berada di folder yang sama)
+# 1. Muat Generator Data
 from preprocess import get_generators
 train_gen, val_gen, test_gen = get_generators()
 
 # 2. Bangun Arsitektur ResNet-50
 base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
-base_model.trainable = False # Tahap Warm-up: Bekukan base model
+base_model.trainable = False
 
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
 x = Dense(256, activation='relu')(x)
 x = Dropout(0.5)(x)
-predictions = Dense(4, activation='softmax')(x) # 4 Kelas Keparahan
+predictions = Dense(4, activation='softmax')(x)
 
 model = Model(inputs=base_model.input, outputs=predictions)
 
-# Penting: Gunakan 'categorical_crossentropy' karena class_mode="categorical"
+#'categorical_crossentropy' karena class_mode="categorical"
 model.compile(
     optimizer=Adam(learning_rate=1e-4),
     loss='categorical_crossentropy', 
     metrics=['accuracy', tf.keras.metrics.Precision(name='precision'), tf.keras.metrics.Recall(name='recall')]
 )
 
-# 3. Callbacks untuk menyimpan model medis terbaik
+# 3. Callbacks untuk menyimpan model terbaik
 checkpoint = ModelCheckpoint(
     'resnet50_acne_analyzer.h5', 
     monitor='val_loss', 
@@ -38,7 +38,7 @@ checkpoint = ModelCheckpoint(
 )
 early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
-# 4. Tahap Training Pertama (Warm-up)
+# 4. Tahap Training (Warm-up)
 print("\n--- Memulai Tahap Warm-up ---")
 EPOCHS_WARMUP = 10
 history_warmup = model.fit(
