@@ -43,8 +43,8 @@ def parse_txt(txt_path):
             parts = line.strip().split()
             if len(parts) < 3:
                 continue
-            filename = parts[0]          # levle0_451.jpg
-            label    = int(parts[1])     # kolom ke-3 = severity label
+            filename = parts[0]
+            label    = int(parts[1])
             cls      = LABEL_MAP[label]
             entries.append((filename, cls))
     return entries
