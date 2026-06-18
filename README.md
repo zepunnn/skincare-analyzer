@@ -116,10 +116,12 @@ Pembagian dataset: **70% Train / 15% Validation / 15% Test**
 
 ## 🤖 Model
 
-- **Arsitektur**: Transfer Learning (MobileNetV2 / EfficientNet-B0)
+- **Arsitektur**: Transfer Learning (ResNet50)
 - **Framework**: TensorFlow / Keras
 - **Input Size**: 224 × 224 px
 - **Output**: 4 kelas kondisi kulit + confidence score
+
+> Link Model: https://drive.google.com/drive/folders/1uzvSas1s6o-lHTm0MeyYYMan-D87AjaB?usp=drive_link
 
 > Performa model akan diupdate setelah training selesai.
 

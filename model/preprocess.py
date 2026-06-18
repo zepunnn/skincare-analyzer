@@ -14,6 +14,7 @@ import glob
 import numpy as np
 from collections import defaultdict
 from keras.src.legacy.preprocessing.image import ImageDataGenerator
+from keras.applications.resnet50 import preprocess_input
 
 RAW_IMAGES_DIR = "Classification/JPEGImages"
 TXT_TRAINVAL   = "Classification/NNEW_trainval_0.txt"
@@ -113,7 +114,7 @@ def get_generators(processed_dir=PROCESSED_DIR,
                    img_size=IMG_SIZE, batch_size=BATCH_SIZE):
     
     train_datagen = ImageDataGenerator(
-        rescale=1.0 / 255,
+        preprocessing_function=preprocess_input,
         rotation_range=20,
         width_shift_range=0.1,
         height_shift_range=0.1,
@@ -122,7 +123,7 @@ def get_generators(processed_dir=PROCESSED_DIR,
         brightness_range=[0.8, 1.2],
         shear_range=0.1,
     )
-    val_test_datagen = ImageDataGenerator(rescale=1.0 / 255)
+    val_test_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 
     train_gen = train_datagen.flow_from_directory(
         os.path.join(processed_dir, "train"),
