@@ -1,6 +1,7 @@
 import os
+import glob
 import numpy as np
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 from PIL import Image
@@ -9,12 +10,20 @@ import io
 # ── Load .env ──────────────────────────────────────────────
 load_dotenv()
 
-app = Flask(__name__)
+# ── Arahkan Flask ke frontend/ ─────────────────────────────
+BASE_DIR     = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+template_dir = os.path.join(BASE_DIR, 'frontend', 'templates')
+static_dir   = os.path.join(BASE_DIR, 'frontend', 'static')
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 CORS(app)
+
+print("[DEBUG] template_folder:", app.template_folder)
+print("[DEBUG] files found:", glob.glob(app.template_folder + '/*'))
 
 # ── Config ─────────────────────────────────────────────────
 MODEL_PATH = os.getenv("MODEL_PATH", "model/model.h5")
-IMG_SIZE   = (224, 224)   # MobileNetV2 default
+IMG_SIZE   = (224, 224)
 
 CLASS_LABELS = {
     0: "Normal",
@@ -42,7 +51,7 @@ RECOMMENDATIONS = {
     ),
 }
 
-# ── Load model (opsional, skip jika belum ada) ──────────────
+# ── Load model ──────────────────────────────────────────────
 model = None
 
 def load_model():
@@ -55,23 +64,26 @@ def load_model():
         print(f"[WARN] Model tidak ditemukan atau gagal dimuat: {e}")
         print("[WARN] Berjalan dalam mode dummy.")
 
-# ── Helper: preprocess gambar ───────────────────────────────
+# ── Helper ──────────────────────────────────────────────────
 def preprocess_image(file_bytes: bytes) -> np.ndarray:
     img = Image.open(io.BytesIO(file_bytes)).convert("RGB")
     img = img.resize(IMG_SIZE)
     arr = np.array(img, dtype=np.float32) / 255.0
-    return np.expand_dims(arr, axis=0)   # shape: (1, 224, 224, 3)
+    return np.expand_dims(arr, axis=0)
 
-# ── Helper: dummy prediction (sebelum model tersedia) ───────
 def dummy_predict() -> tuple[int, float]:
-    idx   = int(np.random.randint(0, 4))
-    conf  = float(np.random.uniform(0.70, 0.99))
+    idx  = int(np.random.randint(0, 4))
+    conf = float(np.random.uniform(0.70, 0.99))
     return idx, conf
 
 # ── Routes ──────────────────────────────────────────────────
 @app.route("/", methods=["GET"])
 def index():
     return jsonify({"message": "SkinCare Analyzer API is running."})
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -86,13 +98,11 @@ def predict():
         file_bytes = file.read()
 
         if model is not None:
-            # ── Real prediction ──
             img_array  = preprocess_image(file_bytes)
-            preds      = model.predict(img_array)[0]       # shape: (4,)
+            preds      = model.predict(img_array)[0]
             class_idx  = int(np.argmax(preds))
             confidence = float(np.max(preds))
         else:
-            # ── Dummy prediction ──
             class_idx, confidence = dummy_predict()
 
         label          = CLASS_LABELS[class_idx]
@@ -100,7 +110,7 @@ def predict():
 
         return jsonify({
             "label":          label,
-            "confidence":     round(confidence * 100, 2),   # dalam persen
+            "confidence":     round(confidence * 100, 2),
             "recommendation": recommendation,
         })
 
