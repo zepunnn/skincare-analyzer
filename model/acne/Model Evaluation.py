@@ -7,7 +7,7 @@ from keras.applications.resnet50 import preprocess_input
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
-from preprocess import get_generators, CLASS_NAMES
+from model.acne.preprocess import get_generators, CLASS_NAMES
 
 # 1. Konfigurasi
 MODEL_PATH = 'resnet50_acne_analyzer.h5'

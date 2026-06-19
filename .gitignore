@@ -1,8 +1,11 @@
 datasets1
 Classification
 .vscode
+Oily-Dry-Skin-Types
 
 # Dataset (too large)
-dataset/raw/
-dataset/processed/
+dataset/acne/raw/
+dataset/acne/processed/
+dataset/oiliness/raw/
+dataset/oiliness/processed/
 hasil_deteksi_moderate/

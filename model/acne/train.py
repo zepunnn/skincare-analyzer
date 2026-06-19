@@ -6,7 +6,7 @@ from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 # 1. Muat Generator Data
-from preprocess import get_generators
+from model.acne.preprocess import get_generators
 train_gen, val_gen, test_gen = get_generators()
 
 # 2. Bangun Arsitektur ResNet-50
