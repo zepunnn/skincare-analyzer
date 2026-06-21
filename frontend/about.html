@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — SkinCare Analyzer</title>
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Fonts: Outfit & Inter (same as homepage) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Shared stylesheet (same file used by Home) -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== TOP BAR (identical to Home) ===== -->
+  <header class="topbar">
+    <a href="index.html" class="topbar-logo">SkinCare Analyzer</a>
+    <nav class="topbar-nav">
+      <a href="index.html">Home</a>
+      <a href="analyze.html">Analize</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <!-- ===== PAGE HEADER ===== -->
+  <section class="page-header">
+    <p class="section-label">About This Project</p>
+    <h1 class="page-title">Built with Care</h1>
+    <p class="page-subtitle">
+      SkinCare Analyzer menggunakan Deep Learning untuk menganalisis kondisi kulit wajah dan memberikan rekomendasi perawatan yang tepat — praktis, cepat, dan informatif.
+    </p>
+  </section>
+
+  <!-- ===== TUJUAN & DATASET ===== -->
+  <section class="about-section">
+    <div class="about-grid">
+
+      <div class="info-card">
+        <p class="info-card-title">🎯 Tujuan Proyek</p>
+        <p>Membantu pengguna memahami kondisi kulit wajah secara mandiri melalui kecerdasan buatan, tanpa harus konsultasi langsung untuk pengecekan awal.</p>
+        <ul>
+          <li>Klasifikasi: Normal, Mild, Moderate, Severe Acne</li>
+          <li>Rekomendasi perawatan berbasis hasil analisis</li>
+          <li>Penerapan Deep Learning di bidang kesehatan kulit</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <p class="info-card-title">🗃️ Dataset</p>
+        <p>Menggunakan dataset <strong>ACNE Severity Classification (ACNE04)</strong> dari Kaggle yang telah melalui proses preprocessing dan augmentasi data.</p>
+        <ul>
+          <li>Sumber: Kaggle — lexuanhieu131297</li>
+          <li>Format label: IGA Scale (0–3)</li>
+          <li>Kelas: Normal, Mild Acne, Moderate Acne, Severe Acne</li>
+          <li>Split: Train / Validation / Test</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== TECH STACK ===== -->
+  <section class="about-section" style="padding-top: 0;">
+    <div class="info-card">
+      <p class="info-card-title">⚙️ Teknologi yang Digunakan</p>
+      <div>
+        <span class="badge-tech">Python</span>
+        <span class="badge-tech">TensorFlow / Keras</span>
+        <span class="badge-tech">MobileNetV2</span>
+        <span class="badge-tech">OpenCV</span>
+        <span class="badge-tech">Flask</span>
+        <span class="badge-tech">HTML &amp; CSS</span>
+        <span class="badge-tech">Tailwind CSS</span>
+        <span class="badge-tech">JavaScript</span>
+        <span class="badge-tech">GitHub</span>
+        <span class="badge-tech">Vercel</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MODEL ===== -->
+  <section class="about-section" style="padding-top: 0;">
+    <div class="info-card">
+      <p class="info-card-title">🤖 Model yang Digunakan</p>
+      <p>Model klasifikasi dibangun menggunakan arsitektur <strong>MobileNetV2</strong> dengan pendekatan transfer learning. Model di-fine-tune menggunakan dataset ACNE04 untuk mengklasifikasikan kondisi kulit ke dalam 4 kelas dengan akurasi yang optimal.</p>
+    </div>
+  </section>
+
+  <!-- ===== TIM PENGEMBANG ===== -->
+  <section class="about-section">
+    <div class="text-center mb-8" style="text-align: center; margin-bottom: 32px;">
+      <p class="section-label">The Team</p>
+      <p class="section-heading">👥 Tim Pengembang</p>
+    </div>
+
+    <div class="team-grid">
+
+      <div class="member-card">
+        <div class="member-avatar">👤</div>
+        <div class="member-name">Nama Anggota 1</div>
+        <div class="member-role">Dataset Lead</div>
+        <div class="member-desc">Pencarian dataset, preprocessing, dan augmentasi data.</div>
+      </div>
+
+      <div class="member-card">
+        <div class="member-avatar">👤</div>
+        <div class="member-name">Nama Anggota 2</div>
+        <div class="member-role">ML Engineer</div>
+        <div class="member-desc">Membangun dan melatih model MobileNetV2 untuk klasifikasi kulit.</div>
+      </div>
+
+      <div class="member-card">
+        <div class="member-avatar">👤</div>
+        <div class="member-name">Nama Anggota 3</div>
+        <div class="member-role">UI/UX + Backend</div>
+        <div class="member-desc">Merancang tampilan website dan membangun backend Flask.</div>
+      </div>
+
+      <div class="member-card">
+        <div class="member-avatar">👤</div>
+        <div class="member-name">Nama Anggota 4</div>
+        <div class="member-role">Project Manager</div>
+        <div class="member-desc">Koordinasi tim, pengelolaan GitHub, dan integrasi model.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== FOOTER (identical to Home) ===== -->
+  <footer class="footer-section">
+    <div class="footer-logo">Skin Analyzer</div>
+    <div class="footer-tagline">Your personal AI skin analyzer</div>
+    <hr class="footer-divider">
+    <div class="footer-copyright">© 2025 SkinCare Analyzer — Magang IMV</div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
