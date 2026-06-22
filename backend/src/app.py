@@ -11,15 +11,28 @@ import io
 load_dotenv()
 
 # ── Arahkan Flask ke frontend/ ─────────────────────────────
-BASE_DIR     = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-template_dir = os.path.join(BASE_DIR, 'frontend', 'templates')
-static_dir   = os.path.join(BASE_DIR, 'frontend', 'static')
+# app.py ada di backend/src/app.py → naik 2x untuk sampai ke root proyek
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+# HTML ada di frontend/html/
+template_dir = os.path.join(BASE_DIR, 'frontend', 'html')
+
+# CSS & JS ada di frontend/css/ dan frontend/js/
+static_dir = os.path.join(BASE_DIR, 'frontend')
+
+app = Flask(
+    __name__,
+    template_folder=template_dir,
+    static_folder=static_dir,
+    static_url_path='',
+)
 CORS(app)
 
 print("[DEBUG] template_folder:", app.template_folder)
-print("[DEBUG] files found:", glob.glob(app.template_folder + '/*'))
+print("[DEBUG] static_folder  :", app.static_folder)
+print("[DEBUG] html files     :", glob.glob(app.template_folder + '/*.html'))
+print("[DEBUG] css files      :", glob.glob(os.path.join(static_dir, 'css', '*.css')))
+print("[DEBUG] js files       :", glob.glob(os.path.join(static_dir, 'js', '*.js')))
 
 # ── Config ─────────────────────────────────────────────────
 MODEL_PATH = os.getenv("MODEL_PATH", "model/model.h5")
@@ -76,15 +89,24 @@ def dummy_predict() -> tuple[int, float]:
     conf = float(np.random.uniform(0.70, 0.99))
     return idx, conf
 
-# ── Routes ──────────────────────────────────────────────────
+# ── Routes — Halaman ─────────────────────────────────────────
 @app.route("/", methods=["GET"])
 def index():
-    return jsonify({"message": "SkinCare Analyzer API is running."})
+    return render_template("index.html")
 
-@app.route("/about")
+@app.route("/index.html")
+def home():
+    return render_template("index.html")
+
+@app.route("/analyze.html")
+def analyze():
+    return render_template("analyze.html")
+
+@app.route("/about.html")
 def about():
     return render_template("about.html")
 
+# ── Routes — API ──────────────────────────────────────────────
 @app.route("/predict", methods=["POST"])
 def predict():
     if "file" not in request.files:

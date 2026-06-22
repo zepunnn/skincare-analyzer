@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Shared stylesheet -->
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="/css/style.css">
 
 <style>
   /* ===== ANALYZE PAGE SPECIFIC STYLES ===== */
@@ -357,23 +357,46 @@
     <!-- Result Section -->
     <div class="result-section" id="resultSection">
 
-      <!-- Summary bar -->
-      <div class="result-bar" id="resultBar">
+      <div class="result-bar">
+
         <div class="result-item">
-          Jerawat =
-          <span class="badge" id="badgeJerawat">—</span>
+          Acne :
+          <span class="badge" id="badgeAcne">-</span>
         </div>
+
         <div class="result-item">
-          Berminyak =
-          <span class="badge" id="badgeBerminyak">—</span>
+          Oiliness :
+          <span class="badge" id="badgeOil">-</span>
         </div>
-        <div class="confidence" id="confidenceText">—</div>
+
       </div>
 
-      <!-- Recommendation cards -->
+      <div class="result-bar">
+
+        <div class="result-item">
+          Acne Confidence :
+          <strong id="acneConfidence">-</strong>
+        </div>
+
+        <div class="result-item">
+          Oiliness Confidence :
+          <strong id="oilConfidence">-</strong>
+        </div>
+
+      </div>
+
       <div class="rec-grid" id="recGrid">
         <!-- filled by JS -->
       </div>
+
+    </div>
+
+  <!-- Recommendation cards -->
+  <div class="rec-grid" id="recGrid">
+    <!-- Diisi oleh JavaScript -->
+  </div>
+
+</div>
 
     </div>
   </main>
@@ -392,9 +415,10 @@
     const previewImg    = document.getElementById('previewImg');
     const btnAnalyze    = document.getElementById('btnAnalyze');
     const resultSection = document.getElementById('resultSection');
-    const badgeJerawat  = document.getElementById('badgeJerawat');
-    const badgeBerminyak= document.getElementById('badgeBerminyak');
-    const confidenceText= document.getElementById('confidenceText');
+    const badgeJerawat   = document.getElementById('badgeAcne');
+    const badgeBerminyak = document.getElementById('badgeOil');
+    const acneConfidence  = document.getElementById('acneConfidence');
+    const oilConfidence   = document.getElementById('oilConfidence');
     const recGrid       = document.getElementById('recGrid');
     const loadingOverlay= document.getElementById('loadingOverlay');
 
@@ -487,7 +511,7 @@
       try {
         // ── Send to backend ──
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file);
 
         const res  = await fetch('/predict', { method: 'POST', body: formData });
         const data = await res.json();
