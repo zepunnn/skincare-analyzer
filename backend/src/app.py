@@ -28,6 +28,8 @@ app = Flask(
 )
 CORS(app)
 
+application = app
+
 print("[DEBUG] template_folder:", app.template_folder)
 print("[DEBUG] static_folder  :", app.static_folder)
 print("[DEBUG] html files     :", glob.glob(app.template_folder + '/*.html'))
