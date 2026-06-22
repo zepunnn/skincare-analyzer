@@ -15,7 +15,7 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 # HTML ada di frontend/html/
-template_dir = os.path.join(BASE_DIR, 'frontend', 'html')
+template_dir = os.path.join(BASE_DIR, 'frontend')
 
 # CSS & JS ada di frontend/css/ dan frontend/js/
 static_dir = os.path.join(BASE_DIR, 'frontend')
