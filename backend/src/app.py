@@ -30,9 +30,9 @@ print("[DEBUG] template_folder:", app.template_folder)
 print("[DEBUG] static_folder  :", app.static_folder)
 
 # ── Config ─────────────────────────────────────────────────
-ACNE_MODEL_PATH = os.path.join(BASE_DIR, "resnet50_acne_analyzer.h5")
-SKIN_MODEL_PATH_MB = os.path.join(BASE_DIR, "model", "oiliness", "mobilenetv2_skin_type.h5")
-SKIN_MODEL_PATH_RN = os.path.join(BASE_DIR, "model", "oiliness", "resnet50_skin_type.h5")
+# Menggunakan format .tflite agar ringan di Vercel (tidak butuh TF)
+ACNE_MODEL_PATH = os.path.join(BASE_DIR, "resnet50_acne_analyzer.tflite")
+SKIN_MODEL_PATH = os.path.join(BASE_DIR, "model", "oiliness", "mobilenetv2_skin_type.tflite")
 
 IMG_SIZE = (224, 224)
 
@@ -40,17 +40,16 @@ ACNE_CLASSES = ["Normal", "Mild Acne", "Moderate Acne", "Severe Acne"]
 SKIN_CLASSES = ["Dry", "Oil"]
 
 # ── Rekomendasi ─────────────────────────────────────────────
-# Menggabungkan tipe kulit dan kondisi jerawat
 def get_recommendations(acne_class, skin_class):
     recs = []
     
-    # 1. Pembersih Wajah (Berdasarkan Skin Type)
+    # 1. Pembersih Wajah
     if skin_class == "Oil":
         recs.append({"icon": "water", "text": "Gunakan pembersih wajah berbusa (foaming cleanser) untuk mengontrol minyak berlebih."})
     else: # Dry
         recs.append({"icon": "water", "text": "Gunakan pembersih wajah lembut yang menghidrasi (gentle/hydrating cleanser)."})
         
-    # 2. Perawatan Jerawat (Berdasarkan Acne Severity)
+    # 2. Perawatan Jerawat
     if acne_class == "Normal":
         recs.append({"icon": "sun", "text": "Kulit terlihat sehat. Pertahankan rutinitas dengan moisturizer dan sunscreen."})
     elif acne_class == "Mild Acne":
@@ -68,43 +67,50 @@ def get_recommendations(acne_class, skin_class):
         
     return recs
 
-# ── Load model ──────────────────────────────────────────────
-acne_model = None
-skin_model = None
-skin_preprocess_fn = None
+# ── Load model (TFLite) ─────────────────────────────────────
+acne_interpreter = None
+skin_interpreter = None
 
 def load_models():
-    global acne_model, skin_model, skin_preprocess_fn
+    global acne_interpreter, skin_interpreter
     try:
-        from tensorflow.keras.models import load_model as keras_load
-        from tensorflow.keras.applications.resnet50 import preprocess_input as resnet_prep
-        from tensorflow.keras.applications.mobilenet_v2 import preprocess_input as mobilenet_prep
+        import tflite_runtime.interpreter as tflite
         
         # Load Acne Model
         if os.path.exists(ACNE_MODEL_PATH):
-            acne_model = keras_load(ACNE_MODEL_PATH, compile=False)
-            print(f"[INFO] Acne Model loaded from {ACNE_MODEL_PATH}")
+            acne_interpreter = tflite.Interpreter(model_path=ACNE_MODEL_PATH)
+            acne_interpreter.allocate_tensors()
+            print(f"[INFO] Acne TFLite Model loaded from {ACNE_MODEL_PATH}")
             
-        # Load Skin Model (Prioritize MobileNetV2)
-        if os.path.exists(SKIN_MODEL_PATH_MB):
-            skin_model = keras_load(SKIN_MODEL_PATH_MB, compile=False)
-            skin_preprocess_fn = mobilenet_prep
-            print(f"[INFO] Skin Model loaded (MobileNetV2)")
-        elif os.path.exists(SKIN_MODEL_PATH_RN):
-            skin_model = keras_load(SKIN_MODEL_PATH_RN, compile=False)
-            skin_preprocess_fn = resnet_prep
-            print(f"[INFO] Skin Model loaded (ResNet50)")
+        # Load Skin Model
+        if os.path.exists(SKIN_MODEL_PATH):
+            skin_interpreter = tflite.Interpreter(model_path=SKIN_MODEL_PATH)
+            skin_interpreter.allocate_tensors()
+            print(f"[INFO] Skin TFLite Model loaded from {SKIN_MODEL_PATH}")
             
     except Exception as e:
         print(f"[WARN] Error loading models: {e}")
         print("[WARN] Running in dummy mode.")
 
-# ── Helper ──────────────────────────────────────────────────
-def preprocess_base(file_bytes: bytes) -> np.ndarray:
-    img = Image.open(io.BytesIO(file_bytes)).convert("RGB")
-    img = img.resize(IMG_SIZE)
-    arr = np.array(img, dtype=np.float32)
-    return np.expand_dims(arr, axis=0)
+# ── Preprocessing Manual ────────────────────────────────────
+# Karena kita tidak menggunakan keras, kita harus memproses gambar secara manual
+def preprocess_resnet50_caffe(img_array):
+    # ResNet50 Caffe style: RGB -> BGR, then zero-center with ImageNet mean
+    # Input is numpy array RGB [0, 255]
+    img = img_array.copy()[..., ::-1] # RGB to BGR
+    # ImageNet mean (BGR)
+    mean = [103.939, 116.779, 123.68]
+    img[..., 0] -= mean[0]
+    img[..., 1] -= mean[1]
+    img[..., 2] -= mean[2]
+    return img
+
+def preprocess_mobilenetv2_tf(img_array):
+    # MobileNetV2 TF style: normalize between -1 and 1
+    # Input is numpy array RGB [0, 255]
+    img = img_array.copy()
+    img = (img / 127.5) - 1.0
+    return img
 
 def dummy_predict():
     a_idx = int(np.random.randint(0, 4))
@@ -112,6 +118,15 @@ def dummy_predict():
     s_idx = int(np.random.randint(0, 2))
     s_conf = float(np.random.uniform(0.70, 0.99))
     return a_idx, a_conf, s_idx, s_conf
+
+def run_tflite_inference(interpreter, input_tensor):
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    
+    interpreter.set_tensor(input_details[0]['index'], input_tensor)
+    interpreter.invoke()
+    output_data = interpreter.get_tensor(output_details[0]['index'])
+    return output_data[0]
 
 # ── Routes — Halaman ─────────────────────────────────────────
 @app.route("/", methods=["GET"])
@@ -143,24 +158,22 @@ def predict():
     try:
         file_bytes = file.read()
 
-        if acne_model is not None and skin_model is not None:
-            # Preprocess
-            img_base = preprocess_base(file_bytes)
+        if acne_interpreter is not None and skin_interpreter is not None:
+            # Base Image Array [0, 255]
+            img = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+            img = img.resize(IMG_SIZE)
+            img_base = np.array(img, dtype=np.float32)
+            img_batch = np.expand_dims(img_base, axis=0)
             
-            # Predict Acne (ResNet50)
-            from tensorflow.keras.applications.resnet50 import preprocess_input as resnet_prep
-            img_acne = resnet_prep(img_base.copy())
-            acne_preds = acne_model.predict(img_acne, verbose=0)
-            if isinstance(acne_preds, dict): acne_preds = list(acne_preds.values())[0]
-            acne_preds = acne_preds[0]
+            # Predict Acne (ResNet50 Caffe Preprocess)
+            acne_input = preprocess_resnet50_caffe(img_batch)
+            acne_preds = run_tflite_inference(acne_interpreter, acne_input)
             acne_idx = int(np.argmax(acne_preds))
             acne_conf = float(np.max(acne_preds))
             
-            # Predict Skin Type
-            img_skin = skin_preprocess_fn(img_base.copy())
-            skin_preds = skin_model.predict(img_skin, verbose=0)
-            if isinstance(skin_preds, dict): skin_preds = list(skin_preds.values())[0]
-            skin_preds = skin_preds[0]
+            # Predict Skin Type (MobileNetV2 TF Preprocess)
+            skin_input = preprocess_mobilenetv2_tf(img_batch)
+            skin_preds = run_tflite_inference(skin_interpreter, skin_input)
             skin_idx = int(np.argmax(skin_preds))
             skin_conf = float(np.max(skin_preds))
             
@@ -170,16 +183,13 @@ def predict():
         acne_label = ACNE_CLASSES[acne_idx]
         skin_label = SKIN_CLASSES[skin_idx]
         
-        # Mapping ke format yang diharapkan frontend
-        # Jerawat: Normal -> rendah, Mild -> sedang, Moderate/Severe -> tinggi
+        # Mapping ke format frontend
         jerawat_level = "rendah"
         if "Mild" in acne_label: jerawat_level = "sedang"
         elif "Moderate" in acne_label or "Severe" in acne_label: jerawat_level = "tinggi"
         
-        # Berminyak: Dry -> rendah, Oil -> tinggi
         berminyak_level = "tinggi" if skin_label == "Oil" else "rendah"
         
-        # Recommendations
         recs = get_recommendations(acne_label, skin_label)
 
         return jsonify({
