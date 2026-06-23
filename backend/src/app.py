@@ -209,8 +209,10 @@ def predict():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# ── Entry point ─────────────────────────────────────────────
+# ── Load models on import (needed for Vercel) ───────────────
+load_models()
+
+# ── Entry point (local development only) ─────────────────────
 if __name__ == "__main__":
-    load_models()
     debug_mode = os.getenv("FLASK_DEBUG", "true").lower() == "true"
     app.run(debug=debug_mode, host="0.0.0.0", port=5000)
