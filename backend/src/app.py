@@ -183,10 +183,14 @@ def predict():
         acne_label = ACNE_CLASSES[acne_idx]
         skin_label = SKIN_CLASSES[skin_idx]
         
-        # Mapping ke format frontend
-        jerawat_level = "rendah"
-        if "Mild" in acne_label: jerawat_level = "sedang"
-        elif "Moderate" in acne_label or "Severe" in acne_label: jerawat_level = "tinggi"
+        # Mapping ke format frontend (4 level sesuai class detection)
+        jerawat_map = {
+            "Normal": "normal",
+            "Mild Acne": "rendah",
+            "Moderate Acne": "sedang",
+            "Severe Acne": "tinggi",
+        }
+        jerawat_level = jerawat_map.get(acne_label, "normal")
         
         berminyak_level = "tinggi" if skin_label == "Oil" else "rendah"
         

@@ -206,6 +206,7 @@
     min-width: 80px;
   }
 
+  .badge-normal  { background-color: #5BC0DE; color: #fff; }
   .badge-rendah  { background-color: #6EE66E; }
   .badge-sedang  { background-color: #F5E642; }
   .badge-tinggi  { background-color: #F55050; color: #fff; }
@@ -426,13 +427,20 @@
     function applyBadge(el, level) {
       el.className = 'badge';
       const map = {
+        normal: 'badge-normal',
         rendah: 'badge-rendah',
         sedang: 'badge-sedang',
         tinggi: 'badge-tinggi',
       };
+      const labelMap = {
+        normal: 'Normal',
+        rendah: 'Rendah',
+        sedang: 'Sedang',
+        tinggi: 'Tinggi',
+      };
       const key = level.toLowerCase();
-      el.classList.add(map[key] || 'badge-rendah');
-      el.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+      el.classList.add(map[key] || 'badge-normal');
+      el.textContent = labelMap[key] || level;
     }
 
     // ── Recommendation icons (SVG inline) ──
