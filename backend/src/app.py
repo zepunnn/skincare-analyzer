@@ -74,7 +74,7 @@ skin_interpreter = None
 def load_models():
     global acne_interpreter, skin_interpreter
     try:
-        import tflite_runtime.interpreter as tflite
+        from ai_edge_litert import interpreter as tflite
         
         # Load Acne Model
         if os.path.exists(ACNE_MODEL_PATH):

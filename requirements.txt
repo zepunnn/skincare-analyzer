@@ -3,4 +3,4 @@ flask_cors
 python-dotenv
 numpy
 Pillow
-tflite-runtime
+ai-edge-litert
