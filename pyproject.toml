@@ -1,2 +1,15 @@
+[project]
+name = "skin-analyzer"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+    "flask",
+    "flask-cors",
+    "python-dotenv",
+    "numpy",
+    "Pillow",
+    "tflite-runtime",
+]
+
 [tool.vercel]
 entrypoint = "backend.src.app:app"
