@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinCare Analyzer</title>
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Fonts: Outfit & Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Shared stylesheet (used by all pages) -->
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <a href="index.html" class="topbar-logo">SkinCare Analyzer</a>
+    <nav class="topbar-nav">
+      <a href="index.html">Home</a>
+      <a href="analyze.html">Analize</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero-section" id="home">
+    <div class="hero-text-block">
+      <h1 class="hero-heading">
+        <span class="highlight">Cintai</span> diri anda dengan mengenal Lebih dalam wajah anda
+      </h1>
+      <button class="hero-cta" onclick="window.location.href='analyze.html'">
+        <span>ANALISIS SEKARANG</span>
+      </button>
+    </div>
+    <img
+      class="hero-photo"
+      src="assets/faceML.svg"
+      alt="Analisis wajah">
+  </section>
+
+  <!-- ===== DESCRIPTION SECTION ===== -->
+  <section class="desc-section">
+    <div class="desc-image-wrap">
+      <img
+        src="assets/skincarehome.svg"
+        alt="Produk skincare">
+    </div>
+    <div class="desc-text-wrap">
+      <p class="desc-text">
+        Kulit wajah kamu bercerita banyak hal.
+        <span class="brand-highlight">SkinCare Analyzer</span>
+        hadir untuk membantu kamu memahaminya — cukup unggah foto, dan dapatkan analisis kondisi kulit serta rekomendasi perawatan yang tepat dalam hitungan detik.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== BENEFITS SECTION ===== -->
+  <section class="benefits-section" id="benefits">
+    <h2 class="benefits-title">Apa yang Kami Tawarkan?</h2>
+    <div class="benefits-grid">
+
+      <div class="benefit-card">
+        <img src="assets/analisis instan.svg" alt="Analisis Instan">
+        <div class="benefit-card-label"><span>ANALISIS INSTAN</span></div>
+      </div>
+
+      <div class="benefit-card">
+        <img src="assets/didukung AI.svg" alt="Didukung AI">
+        <div class="benefit-card-label"><span>DIDUKUNG AI</span></div>
+      </div>
+
+      <div class="benefit-card">
+        <img src="assets/Tanpa regis.svg" alt="Tanpa Registrasi">
+        <div class="benefit-card-label"><span>TANPA REGISTRASI</span></div>
+      </div>
+
+      <div class="benefit-card">
+        <img src="assets/rekomendasi personal.svg" alt="Rekomendasi Personal">
+        <div class="benefit-card-label"><span>REKOMENDASI PERSONAL</span></div>
+      </div>
+
+      <div class="benefit-card">
+        <img src="assets/Mudah digunakan.svg" alt="Mudah Digunakan">
+        <div class="benefit-card-label"><span>MUDAH DIGUNAKAN</span></div>
+      </div>
+
+      <div class="benefit-card">
+        <img src="assets/aksesibel.svg" alt="Gratis dan Aksesibel">
+        <div class="benefit-card-label"><span>GRATIS DAN AKSESIBEL</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer-section">
+    <div class="footer-logo">Skin Analyzer</div>
+    <div class="footer-tagline">Your personal AI skin analyzer</div>
+    <hr class="footer-divider">
+    <div class="footer-copyright">© 2025 SkinCare Analyzer — Magang IMV</div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
