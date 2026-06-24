@@ -417,6 +417,17 @@ body {
   color: #FFFFFF;
 }
 
+.member-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  margin: 0 auto 16px;
+  border: 3px solid #FFD6E7;
+}
+
 .member-name {
   font-family: 'Inter', sans-serif;
   font-weight: 700;

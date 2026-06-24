@@ -43,21 +43,30 @@
 
       <div class="info-card">
         <p class="info-card-title">🎯 Tujuan Proyek</p>
-        <p>Membantu pengguna memahami kondisi kulit wajah secara mandiri melalui kecerdasan buatan, tanpa harus konsultasi langsung untuk pengecekan awal.</p>
+        <p>
+          Mengembangkan sistem berbasis Deep Learning untuk menganalisis kondisi kulit wajah secara otomatis
+          dan memberikan gambaran awal kepada pengguna tanpa harus konsultasi langsung.
+        </p>
+
         <ul>
-          <li>Klasifikasi: Normal, Mild, Moderate, Severe Acne</li>
-          <li>Rekomendasi perawatan berbasis hasil analisis</li>
-          <li>Penerapan Deep Learning di bidang kesehatan kulit</li>
+          <li>Klasifikasi kondisi acne pada wajah</li>
+          <li>Analisis tingkat oiliness (kadar minyak kulit)</li>
+          <li>Memberikan hasil analisis yang cepat dan informatif</li>
+          <li>Penerapan AI di bidang skin health monitoring</li>
         </ul>
       </div>
 
       <div class="info-card">
         <p class="info-card-title">🗃️ Dataset</p>
-        <p>Menggunakan dataset <strong>ACNE Severity Classification (ACNE04)</strong> dari Kaggle yang telah melalui proses preprocessing dan augmentasi data.</p>
+        <p>
+          Menggunakan kombinasi dataset untuk analisis kondisi kulit wajah, yaitu 
+          <strong>ACNE Severity Classification (ACNE04)</strong> dan 
+          <strong>Skin Issues Version 2 (Balanced Dataset)</strong> untuk analisis oiliness dan kondisi kulit lainnya.
+        </p>
+
         <ul>
-          <li>Sumber: Kaggle — lexuanhieu131297</li>
-          <li>Format label: IGA Scale (0–3)</li>
-          <li>Kelas: Normal, Mild Acne, Moderate Acne, Severe Acne</li>
+          <li>Acne: ACNE Severity (IGA Scale 0–3)</li>
+          <li>Oiliness: Indikasi tingkat oiliness berdasarkan intensitas pantulan cahaya pada permukaan wajah</li>
           <li>Split: Train / Validation / Test</li>
         </ul>
       </div>
@@ -73,7 +82,7 @@
         <span class="badge-tech">Python</span>
         <span class="badge-tech">TensorFlow / Keras</span>
         <span class="badge-tech">MobileNetV2</span>
-        <span class="badge-tech">OpenCV</span>
+        <span class="badge-tech">Resnet50</span>
         <span class="badge-tech">Flask</span>
         <span class="badge-tech">HTML &amp; CSS</span>
         <span class="badge-tech">Tailwind CSS</span>
@@ -88,7 +97,16 @@
   <section class="about-section" style="padding-top: 0;">
     <div class="info-card">
       <p class="info-card-title">🤖 Model yang Digunakan</p>
-      <p>Model klasifikasi dibangun menggunakan arsitektur <strong>MobileNetV2</strong> dengan pendekatan transfer learning. Model di-fine-tune menggunakan dataset ACNE04 untuk mengklasifikasikan kondisi kulit ke dalam 4 kelas dengan akurasi yang optimal.</p>
+      
+      <p>
+        SkinCare Analyzer menggunakan pendekatan <strong>transfer learning</strong> dengan dua arsitektur deep learning,
+        yaitu <strong>MobileNetV2</strong> dan <strong>ResNet50</strong>, untuk analisis kondisi kulit wajah.
+      </p>
+
+      <ul>
+        <li><strong>MobileNetV2</strong>: model ringan untuk inference cepat pada web</li>
+        <li><strong>ResNet50</strong>: model dengan ekstraksi fitur yang lebih kuat</li>
+      </ul>
     </div>
   </section>
 
@@ -96,37 +114,41 @@
   <section class="about-section">
     <div class="text-center mb-8" style="text-align: center; margin-bottom: 32px;">
       <p class="section-label">The Team</p>
-      <p class="section-heading">👥 Tim Pengembang</p>
+      <p class="section-heading">Tim Pengembang</p>
     </div>
 
     <div class="team-grid">
 
       <div class="member-card">
-        <div class="member-avatar">👤</div>
-        <div class="member-name">Nama Anggota 1</div>
-        <div class="member-role">Dataset Lead</div>
-        <div class="member-desc">Pencarian dataset, preprocessing, dan augmentasi data.</div>
+        <img src="assets/zepun.jpg" alt="Zepun"
+           class="member-photo">
+        <div class="member-name">Fakhri Muhammad Al Hisyam</div>
+        <div class="member-role">Teknik Telekomunikasi</div>
+        <div class="member-desc">“If you find the one, hold on and fight for it like it’s your only truth.”</div>
       </div>
 
       <div class="member-card">
-        <div class="member-avatar">👤</div>
-        <div class="member-name">Nama Anggota 2</div>
-        <div class="member-role">ML Engineer</div>
-        <div class="member-desc">Membangun dan melatih model MobileNetV2 untuk klasifikasi kulit.</div>
+        <img src="assets/hilman.jpg" alt="Hilman"
+           class="member-photo">
+        <div class="member-name">Muhammad Hilman Dzakwanurrofiq</div>
+        <div class="member-role">Teknik Fisika</div>
+        <div class="member-desc">"Don't judge website by the fontend."</div>
       </div>
 
       <div class="member-card">
-        <div class="member-avatar">👤</div>
-        <div class="member-name">Nama Anggota 3</div>
-        <div class="member-role">UI/UX + Backend</div>
-        <div class="member-desc">Merancang tampilan website dan membangun backend Flask.</div>
+        <img src="assets/azriel.png" alt="Azriel"
+           class="member-photo">
+        <div class="member-name">Muhammad Azriel Saputra</div>
+        <div class="member-role">Teknik Biomedis</div>
+        <div class="member-desc">"Nikmati akses konten Platinum di Aplikasi Vidio. Cek atau aktifkan Vidio di mylM3 skrg! Berlaku utk 1 kali aktivasi."</div>
       </div>
 
       <div class="member-card">
-        <div class="member-avatar">👤</div>
-        <div class="member-name">Nama Anggota 4</div>
-        <div class="member-role">Project Manager</div>
-        <div class="member-desc">Koordinasi tim, pengelolaan GitHub, dan integrasi model.</div>
+        <img src="assets/alvi.png" alt="Alvi"
+           class="member-photo">
+        <div class="member-name">Muhammad Fauzan Alviansyah</div>
+        <div class="member-role">Teknik Elektro</div>
+        <div class="member-desc">"keep calm and blame it on the lag"</div>
       </div>
 
     </div>
@@ -137,7 +159,7 @@
     <div class="footer-logo">Skin Analyzer</div>
     <div class="footer-tagline">Your personal AI skin analyzer</div>
     <hr class="footer-divider">
-    <div class="footer-copyright">© 2025 SkinCare Analyzer — Magang IMV</div>
+    <div class="footer-copyright">© 2026 SkinCare Analyzer — Magang IMV</div>
   </footer>
 
   <script src="js/main.js"></script>
