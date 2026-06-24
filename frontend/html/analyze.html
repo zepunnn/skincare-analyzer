@@ -206,7 +206,6 @@
     min-width: 80px;
   }
 
-  .badge-normal  { background-color: #5BC0DE; color: #fff; }
   .badge-rendah  { background-color: #6EE66E; }
   .badge-sedang  { background-color: #F5E642; }
   .badge-tinggi  { background-color: #F55050; color: #fff; }
@@ -391,15 +390,6 @@
       </div>
 
     </div>
-
-  <!-- Recommendation cards -->
-  <div class="rec-grid" id="recGrid">
-    <!-- Diisi oleh JavaScript -->
-  </div>
-
-</div>
-
-    </div>
   </main>
 
   <!-- Loading overlay -->
@@ -427,20 +417,13 @@
     function applyBadge(el, level) {
       el.className = 'badge';
       const map = {
-        normal: 'badge-normal',
         rendah: 'badge-rendah',
         sedang: 'badge-sedang',
         tinggi: 'badge-tinggi',
       };
-      const labelMap = {
-        normal: 'Normal',
-        rendah: 'Rendah',
-        sedang: 'Sedang',
-        tinggi: 'Tinggi',
-      };
       const key = level.toLowerCase();
-      el.classList.add(map[key] || 'badge-normal');
-      el.textContent = labelMap[key] || level;
+      el.classList.add(map[key] || 'badge-rendah');
+      el.textContent = level.charAt(0).toUpperCase() + level.slice(1);
     }
 
     // ── Recommendation icons (SVG inline) ──
@@ -450,14 +433,31 @@
       doctor:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>`,
     };
 
-    function renderRecs(recs) {
-      if (!recs || recs.length === 0) {
-        recGrid.innerHTML = '<p class="rec-text" style="grid-column: 1/-1; text-align: center;">Tidak ada rekomendasi spesifik.</p>';
-        return;
-      }
-      recGrid.innerHTML = recs.map(r => `
+    // ── Recommendations by severity ──
+    const RECS = {
+      rendah: [
+        { icon: 'water',  text: 'Gunakan pelembap ringan setiap hari' },
+        { icon: 'sun',    text: 'Gunakan sunscreen tiap pagi' },
+        { icon: 'doctor', text: 'Pertahankan rutinitas perawatan yang ada' },
+      ],
+      sedang: [
+        { icon: 'water',  text: 'Pakai pembersih lembut 2x sehari' },
+        { icon: 'sun',    text: 'Gunakan sunscreen tiap pagi' },
+        { icon: 'doctor', text: 'Konsultasi jika tidak membaik' },
+      ],
+      tinggi: [
+        { icon: 'water',  text: 'Hindari memencet jerawat, bersihkan lembut' },
+        { icon: 'sun',    text: 'Gunakan sunscreen non-comedogenic' },
+        { icon: 'doctor', text: 'Segera konsultasi ke dokter kulit' },
+      ],
+    };
+
+    function renderRecs(level) {
+      const key = level.toLowerCase();
+      const list = RECS[key] || RECS.sedang;
+      recGrid.innerHTML = list.map(r => `
         <div class="rec-card">
-          <div class="rec-icon">${ICONS[r.icon] || ICONS.doctor}</div>
+          <div class="rec-icon">${ICONS[r.icon]}</div>
           <p class="rec-text">${r.text}</p>
         </div>
       `).join('');
@@ -508,19 +508,28 @@
         const data = await res.json();
 
         // Expected response shape:
-        // { jerawat: "sedang", berminyak: "rendah", acne_confidence: 87.5, oil_confidence: 90.1, recommendations: [...] }
+        // { jerawat: "sedang", berminyak: "rendah", acne_confidence: 87.5, oil_confidence: 92.1 }
         const jerawat   = data.jerawat   || 'sedang';
         const berminyak = data.berminyak || 'rendah';
-        const confAcne  = data.acne_confidence != null ? data.acne_confidence : 87;
-        const confOil   = data.oil_confidence != null ? data.oil_confidence : 85;
+        const acneConf  = data.acne_confidence != null ? data.acne_confidence : '-';
+        const oilConf   = data.oil_confidence  != null ? data.oil_confidence  : '-';
 
         applyBadge(badgeJerawat,   jerawat);
         applyBadge(badgeBerminyak, berminyak);
-        
-        acneConfidence.innerHTML = `${confAcne}% <span>Yakin</span>`;
-        oilConfidence.innerHTML = `${confOil}% <span>Yakin</span>`;
-        
-        renderRecs(data.recommendations || []);
+        acneConfidence.textContent = acneConf + '%';
+        oilConfidence.textContent  = oilConf + '%';
+
+        // Use recommendations from backend if available
+        if (data.recommendations && data.recommendations.length > 0) {
+          recGrid.innerHTML = data.recommendations.map(r => `
+            <div class="rec-card">
+              <div class="rec-icon">${ICONS[r.icon] || ICONS.water}</div>
+              <p class="rec-text">${r.text}</p>
+            </div>
+          `).join('');
+        } else {
+          renderRecs(jerawat);
+        }
 
         resultSection.classList.add('visible');
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -531,15 +540,9 @@
 
         applyBadge(badgeJerawat,   'sedang');
         applyBadge(badgeBerminyak, 'rendah');
-        
-        acneConfidence.innerHTML = `87.0% <span>Yakin</span>`;
-        oilConfidence.innerHTML = `92.5% <span>Yakin</span>`;
-        
-        renderRecs([
-          { icon: 'water',  text: 'Gunakan pembersih wajah lembut yang menghidrasi.' },
-          { icon: 'sun',    text: 'Gunakan spot treatment pada jerawat.' },
-          { icon: 'doctor', text: 'Konsultasi jika tidak membaik.' }
-        ]);
+        acneConfidence.textContent = '87%';
+        oilConfidence.textContent  = '85%';
+        renderRecs('sedang');
 
         resultSection.classList.add('visible');
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
