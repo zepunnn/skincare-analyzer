@@ -14,7 +14,7 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 template_dir = os.path.join(BASE_DIR, 'frontend', 'html')
-static_dir = os.path.join(BASE_DIR, 'frontend')
+static_dir = os.path.join(BASE_DIR, 'frontend', 'html')
 
 app = Flask(
     __name__,
