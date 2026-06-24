@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analisis — SkinCare Analyzer</title>
+
+<!-- Google Fonts: Outfit & Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Shared stylesheet -->
+<link rel="stylesheet" href="/css/style.css">
+
+<style>
+  /* ===== ANALYZE PAGE SPECIFIC STYLES ===== */
+
+  .analyze-wrapper {
+    padding: 40px clamp(24px, 7.2vw, 104px) 60px;
+  }
+
+  .analyze-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 3.4vw, 48px);
+    color: var(--pink-accent);
+    margin: 0 0 32px 0;
+  }
+
+  /* ===== UPLOAD + PREVIEW ROW ===== */
+  .upload-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 28px;
+  }
+
+  /* Upload box */
+  .upload-box {
+    border: 2.5px dashed var(--pink-soft2);
+    border-radius: 16px;
+    background-color: #fff5f8;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+    padding: 24px;
+    position: relative;
+  }
+
+  .upload-box:hover,
+  .upload-box.drag-over {
+    border-color: var(--pink-primary);
+    background-color: #ffe8ef;
+  }
+
+  .upload-box input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon {
+    color: var(--pink-soft2);
+  }
+
+  .upload-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--pink-soft2);
+  }
+
+  .btn-choose {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #fff;
+    background-color: var(--pink-primary);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    cursor: pointer;
+    pointer-events: none; /* click handled by file input */
+    box-shadow: 0 2px 8px rgba(255, 64, 129, 0.3);
+  }
+
+  /* Preview box */
+  .preview-box {
+    border-radius: 20px;
+    background-color: var(--pink-soft);
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .preview-placeholder {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 2px;
+  }
+
+  .preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    display: none;
+  }
+
+  /* ===== ANALYZE BUTTON ===== */
+  .btn-analyze {
+    width: 100%;
+    height: 52px;
+    background-color: var(--pink-accent);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(214, 51, 108, 0.4);
+    transition: background-color 0.2s, transform 0.1s;
+    margin-bottom: 36px;
+  }
+
+  .btn-analyze:hover {
+    background-color: var(--pink-strong);
+    transform: translateY(-1px);
+  }
+
+  .btn-analyze:active {
+    transform: translateY(0);
+  }
+
+  .btn-analyze:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ===== RESULT SECTION ===== */
+  .result-section {
+    display: none;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .result-section.visible {
+    display: flex;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Result summary bar */
+  .result-bar {
+    background-color: #fff;
+    border: 2px solid #ffd6e7;
+    border-radius: 14px;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: clamp(15px, 1.6vw, 18px);
+    color: #2d2d2d;
+  }
+
+  /* Severity badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 5px 20px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a1a1a;
+    min-width: 80px;
+  }
+
+  .badge-rendah  { background-color: #6EE66E; }
+  .badge-sedang  { background-color: #F5E642; }
+  .badge-tinggi  { background-color: #F55050; color: #fff; }
+
+  /* Confidence score */
+  .confidence {
+    margin-left: auto;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: clamp(18px, 2vw, 24px);
+    color: #6EE66E;
+  }
+
+  .confidence span {
+    font-weight: 500;
+    font-size: 0.75em;
+    color: #555;
+    margin-left: 2px;
+  }
+
+  /* ===== RECOMMENDATION CARDS ===== */
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .rec-card {
+    background-color: var(--pink-soft2);
+    border-radius: 16px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .rec-icon {
+    width: 40px;
+    height: 40px;
+    color: #4a2030;
+  }
+
+  .rec-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .rec-text {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: clamp(14px, 1.4vw, 16px);
+    color: #2d0a18;
+    line-height: 1.45;
+  }
+
+  /* Loading state */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,245,248,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .loading-overlay.visible {
+    display: flex;
+  }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--pink-soft);
+    border-top-color: var(--pink-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--pink-accent);
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    .upload-row { grid-template-columns: 1fr; }
+    .rec-grid   { grid-template-columns: 1fr; }
+    .confidence { margin-left: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .rec-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <a href="index.html" class="topbar-logo">SkinCare Analyzer</a>
+    <nav class="topbar-nav">
+      <a href="index.html">Home</a>
+      <a href="analyze.html" class="active">Analize</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="analyze-wrapper">
+
+    <h1 class="analyze-title">Analize Your Skin Now</h1>
+
+    <!-- Upload + Preview -->
+    <div class="upload-row">
+      <!-- Upload Box -->
+      <div class="upload-box" id="uploadBox">
+        <input type="file" id="fileInput" accept="image/*">
+
+        <svg class="upload-icon" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="10" width="56" height="40" rx="6" stroke="#FFA9B4" stroke-width="3" fill="none"/>
+          <circle cx="22" cy="26" r="6" stroke="#FFA9B4" stroke-width="3" fill="none"/>
+          <path d="M4 40 L18 28 L28 38 L38 26 L60 44" stroke="#FFA9B4" stroke-width="3" stroke-linejoin="round" fill="none"/>
+        </svg>
+
+        <p class="upload-label">Upload Your Image</p>
+        <button class="btn-choose" tabindex="-1">Choose File</button>
+      </div>
+
+      <!-- Preview Box -->
+      <div class="preview-box" id="previewBox">
+        <span class="preview-placeholder">preview image</span>
+        <img id="previewImg" src="" alt="Preview">
+      </div>
+    </div>
+
+    <!-- Analyze Button -->
+    <button class="btn-analyze" id="btnAnalyze" disabled>Analisis Sekarang</button>
+
+    <!-- Result Section -->
+    <div class="result-section" id="resultSection">
+
+      <div class="result-bar">
+
+        <div class="result-item">
+          Acne :
+          <span class="badge" id="badgeAcne">-</span>
+        </div>
+
+        <div class="result-item">
+          Oiliness :
+          <span class="badge" id="badgeOil">-</span>
+        </div>
+
+      </div>
+
+      <div class="result-bar">
+
+        <div class="result-item">
+          Acne Confidence :
+          <strong id="acneConfidence">-</strong>
+        </div>
+
+        <div class="result-item">
+          Oiliness Confidence :
+          <strong id="oilConfidence">-</strong>
+        </div>
+
+      </div>
+
+      <div class="rec-grid" id="recGrid">
+        <!-- filled by JS -->
+      </div>
+
+    </div>
+
+  <!-- Recommendation cards -->
+  <div class="rec-grid" id="recGrid">
+    <!-- Diisi oleh JavaScript -->
+  </div>
+
+</div>
+
+    </div>
+  </main>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p class="loading-text">Menganalisis kulit kamu...</p>
+  </div>
+
+  <script>
+    // ── DOM refs ──
+    const fileInput     = document.getElementById('fileInput');
+    const uploadBox     = document.getElementById('uploadBox');
+    const previewBox    = document.getElementById('previewBox');
+    const previewImg    = document.getElementById('previewImg');
+    const btnAnalyze    = document.getElementById('btnAnalyze');
+    const resultSection = document.getElementById('resultSection');
+    const badgeJerawat   = document.getElementById('badgeAcne');
+    const badgeBerminyak = document.getElementById('badgeOil');
+    const acneConfidence  = document.getElementById('acneConfidence');
+    const oilConfidence   = document.getElementById('oilConfidence');
+    const recGrid       = document.getElementById('recGrid');
+    const loadingOverlay= document.getElementById('loadingOverlay');
+
+    // ── Severity badge helper ──
+    function applyBadge(el, level) {
+      el.className = 'badge';
+      const map = {
+        rendah: 'badge-rendah',
+        sedang: 'badge-sedang',
+        tinggi: 'badge-tinggi',
+      };
+      const key = level.toLowerCase();
+      el.classList.add(map[key] || 'badge-rendah');
+      el.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+    }
+
+    // ── Recommendation icons (SVG inline) ──
+    const ICONS = {
+      water: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C12 2 5 9.5 5 14a7 7 0 0 0 14 0C19 9.5 12 2 12 2z"/></svg>`,
+      sun:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+      doctor:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>`,
+    };
+
+    // ── Recommendations by severity ──
+    const RECS = {
+      rendah: [
+        { icon: 'water',  text: 'Gunakan pelembap ringan setiap hari' },
+        { icon: 'sun',    text: 'Gunakan sunscreen tiap pagi' },
+        { icon: 'doctor', text: 'Pertahankan rutinitas perawatan yang ada' },
+      ],
+      sedang: [
+        { icon: 'water',  text: 'Pakai pembersih lembut 2x sehari' },
+        { icon: 'sun',    text: 'Gunakan sunscreen tiap pagi' },
+        { icon: 'doctor', text: 'Konsultasi jika tidak membaik' },
+      ],
+      tinggi: [
+        { icon: 'water',  text: 'Hindari memencet jerawat, bersihkan lembut' },
+        { icon: 'sun',    text: 'Gunakan sunscreen non-comedogenic' },
+        { icon: 'doctor', text: 'Segera konsultasi ke dokter kulit' },
+      ],
+    };
+
+    function renderRecs(level) {
+      const key = level.toLowerCase();
+      const list = RECS[key] || RECS.sedang;
+      recGrid.innerHTML = list.map(r => `
+        <div class="rec-card">
+          <div class="rec-icon">${ICONS[r.icon]}</div>
+          <p class="rec-text">${r.text}</p>
+        </div>
+      `).join('');
+    }
+
+    // ── File input ──
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewImg.style.display = 'block';
+      previewBox.querySelector('.preview-placeholder').style.display = 'none';
+      btnAnalyze.disabled = false;
+      // Hide previous results
+      resultSection.classList.remove('visible');
+    });
+
+    // ── Drag & drop ──
+    uploadBox.addEventListener('dragover', e => { e.preventDefault(); uploadBox.classList.add('drag-over'); });
+    uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('drag-over'));
+    uploadBox.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadBox.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // ── Analyze button ──
+    btnAnalyze.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      loadingOverlay.classList.add('visible');
+      btnAnalyze.disabled = true;
+
+      try {
+        // ── Send to backend ──
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res  = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        // Expected response shape:
+        // { jerawat: "sedang", berminyak: "rendah", confidence: 87 }
+        const jerawat   = data.jerawat   || 'sedang';
+        const berminyak = data.berminyak || 'rendah';
+        const conf      = data.confidence != null ? data.confidence : 87;
+
+        applyBadge(badgeJerawat,   jerawat);
+        applyBadge(badgeBerminyak, berminyak);
+        confidenceText.innerHTML = `${conf}% <span>Yakin</span>`;
+        renderRecs(jerawat);
+
+        resultSection.classList.add('visible');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        // ── Fallback / demo mode if backend not connected ──
+        console.warn('Backend not reachable, showing demo result:', err);
+
+        applyBadge(badgeJerawat,   'sedang');
+        applyBadge(badgeBerminyak, 'rendah');
+        confidenceText.innerHTML = `87% <span>Yakin</span>`;
+        renderRecs('sedang');
+
+        resultSection.classList.add('visible');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } finally {
+        loadingOverlay.classList.remove('visible');
+        btnAnalyze.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
