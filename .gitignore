@@ -1,0 +1,21 @@
+datasets1
+Classification
+.vscode
+Oily-Dry-Skin-Types
+
+# Dataset (too large)
+dataset/
+hasil_deteksi_moderate/
+skin_dataset/
+hasil_deteksi/
+
+# Model files (too large)
+*.h5
+
+# Node modules
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.env
