@@ -206,6 +206,7 @@
     min-width: 80px;
   }
 
+  .badge-normal  { background-color: #7EC8E3; color: #fff; }
   .badge-rendah  { background-color: #6EE66E; }
   .badge-sedang  { background-color: #F5E642; }
   .badge-tinggi  { background-color: #F55050; color: #fff; }
@@ -417,6 +418,7 @@
     function applyBadge(el, level) {
       el.className = 'badge';
       const map = {
+        normal: 'badge-normal',
         rendah: 'badge-rendah',
         sedang: 'badge-sedang',
         tinggi: 'badge-tinggi',
@@ -507,8 +509,6 @@
         const res  = await fetch('/predict', { method: 'POST', body: formData });
         const data = await res.json();
 
-        // Expected response shape:
-<<<<<<< HEAD
         // { jerawat: "sedang", berminyak: "rendah", acne_confidence: 87.5, oil_confidence: 92.1 }
         const jerawat   = data.jerawat   || 'sedang';
         const berminyak = data.berminyak || 'rendah';
@@ -531,17 +531,6 @@
         } else {
           renderRecs(jerawat);
         }
-=======
-        // { jerawat: "sedang", berminyak: "rendah", confidence: 87 }
-        const jerawat   = data.jerawat   || 'sedang';
-        const berminyak = data.berminyak || 'rendah';
-        const conf      = data.confidence != null ? data.confidence : 87;
-
-        applyBadge(badgeJerawat,   jerawat);
-        applyBadge(badgeBerminyak, berminyak);
-        confidenceText.innerHTML = `${conf}% <span>Yakin</span>`;
-        renderRecs(jerawat);
->>>>>>> 91b9b09865914c9a35fc8f6cf2de21f98508d998
 
         resultSection.classList.add('visible');
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -552,12 +541,8 @@
 
         applyBadge(badgeJerawat,   'sedang');
         applyBadge(badgeBerminyak, 'rendah');
-<<<<<<< HEAD
         acneConfidence.textContent = '87%';
         oilConfidence.textContent  = '85%';
-=======
-        confidenceText.innerHTML = `87% <span>Yakin</span>`;
->>>>>>> 91b9b09865914c9a35fc8f6cf2de21f98508d998
         renderRecs('sedang');
 
         resultSection.classList.add('visible');
